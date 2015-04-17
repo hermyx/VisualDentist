@@ -26,10 +26,14 @@ import java.util.Vector;
 
 public class VisualDentist {
 	private MainApplication app;
-
+	private JFrame frame;
+	private InvGlobalPanel invGlobPanel;
+	private ProPanel proPanel;
+	private PatPanel patPanel;
+	
 	public VisualDentist(){
 		app = new MainApplication();
-		JFrame frame = new JFrame();
+		frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 		frame.setTitle("Visual Dentist");
 		frame.setSize(JFrame.MAXIMIZED_VERT,JFrame.MAXIMIZED_HORIZ);
@@ -73,18 +77,18 @@ public class VisualDentist {
 		
 		frame.setJMenuBar(menuB);
 		
-		PatPanel patPanel = new PatPanel(this);
+		patPanel = new PatPanel(this);
 		//patPanel.setPreferredSize(new Dimension((int)(width/2), (int)(height*0.65)));
 
-		ProPanel proPanel = new ProPanel(this);
+		proPanel = new ProPanel(this);
 		//proPanel.setPreferredSize(new Dimension((int)(width/2), (int)(height*0.65)));
 		
-		JPanel payPanel = new InvoiceManagerPanel(this);
+		invGlobPanel = new InvGlobalPanel(this);
 		//payPanel.setPreferredSize(new Dimension((int)width, (int)(height*0.35)));
 		
 		JPanel manager = new JPanel(new BorderLayout());
 		manager.add(patPanel, BorderLayout.NORTH);
-		manager.add(payPanel, BorderLayout.SOUTH);
+		manager.add(invGlobPanel, BorderLayout.SOUTH);
 		
 		JPanel cards = new JPanel(new CardLayout());
 		cards.add(manager, "manager");
@@ -145,11 +149,62 @@ public class VisualDentist {
 	}
 	
 	public void deleteProcedure(int n){
-		app.deletePatient(n);
+		app.deleteProcedure(n);
+	}
+	
+	public void updateInv(int no){
+		Patient p = getPatient(no);
+		Vector<Invoice> v = p.getP_invoiceList();
+		invGlobPanel.updateInv(v);
+	}
+
+	public InvGlobalPanel getInvGlobPanel() {
+		return invGlobPanel;
+	}
+
+	public ProPanel getProPanel() {
+		return proPanel;
+	}
+
+	public PatPanel getPatPanel() {
+		return patPanel;
+	} 
+	
+	public JFrame getFrame(){
+		return frame;
+	}
+	
+	public int getProcNo(String name){
+		return app.getProc(name).getProcNo();
+	}
+	
+	public void addInv(Invoice i){
+		int pNo = patPanel.getCurrentPatientNo();
+		if(pNo != -1){
+			app.getPatient(pNo).addInvoice(i);
+		}
+	}
+	
+	public Procedure getProcedure(int no){
+		return app.getProc(no);
+	}
+	
+	public MainApplication getApp() {
+		return app;
 	}
 	
 	public static void main(String[] args) {  
 		new VisualDentist();
-	} 
+	}
+
+	public void setApp(MainApplication app) {
+		this.app = app;
+	}
 	
+	public void updateAll(){
+		patPanel.updatePat(app.getPatientList());
+		proPanel.updateProc(app.getProcedureList());
+		app.updateNos();
+	}
+
 }

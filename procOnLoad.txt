@@ -1,0 +1,5 @@
+X-Ray:250
+Filling:200
+Extraction:250
+Dentures:300
+Apicoectomie:400

@@ -1,6 +1,22 @@
 package fundation;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlRootElement(name = "Payment")
+//If you want you can define the order in which the fields are written
+//Optional
+@XmlType(propOrder = { "paymentDate", "paymentAmt", "paymentNo" })
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Payment {
+	
+	public Payment(){
+		
+	}
 	
 	private static int No = 0;
 	
@@ -39,6 +55,18 @@ public class Payment {
 	public String toString() {
 		return "Payment [paymentNo=" + paymentNo + ", paymentAmt=" + paymentAmt
 				+ ", paymentDate=" + paymentDate + "]";
+	}
+
+	public int getPaymentNo() {
+		return paymentNo;
+	}
+
+	public static int getNo() {
+		return No;
+	}
+
+	public static void setNo(int no) {
+		No = no;
 	}
 	
 	

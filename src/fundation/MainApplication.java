@@ -1,10 +1,20 @@
 package fundation;
 import java.util.Vector;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(namespace = "fundation")
 
 public class MainApplication {
 	
+	@XmlElementWrapper(name = "patientList")
+	// XmlElement sets the name of the entities
+	@XmlElement(name = "Patient")
 	private Vector<Patient> patientList;
+	@XmlElementWrapper(name = "prList")
+	@XmlElement(name = "Procedure")
 	private Vector<Procedure> procedureList;
 	
 	//Build an empty Main Application
@@ -35,22 +45,24 @@ public class MainApplication {
 	}
 	
 	public void deletePatient(int n){
+		Patient pat = null;
 		for(Patient p : patientList){
 			if(p.getPatientNo()==n){
-				patientList.remove(p);
+				pat=p;
 			}
 		}
+		patientList.remove(pat);
 	}
 	
 	public Patient getPatient(int n){
 		//Initialization in case the search don't work
-		Patient ret=new Patient("Not","in","the database",new Invoice(1,1));
 		for(Patient p : patientList){
 			if(p.getPatientNo()==n){
-				ret=p;
+				return p;
 			}
 		}
-		return ret;
+		//Exception
+		return null;
 	}
 	
 	//Add a Procedure
@@ -68,11 +80,13 @@ public class MainApplication {
 	}
 	
 	public void deleteProcedure(int n){
+		Procedure proc = null;
 		for(Procedure p : procedureList){
 			if(p.getProcNo()==n){
-				procedureList.remove(p);
+				proc=p;
 			}
 		}
+		procedureList.remove(proc);
 	}
 	
 	//Test if the Patient with name "name" is in the main app
@@ -115,6 +129,16 @@ public class MainApplication {
 		return null;
 	}
 	
+	//Get the Procedure with name "name"
+		public Procedure getProc(int no){
+			for (Procedure p : procedureList){
+				if(p.getProcNo() == no){
+					return p;
+				}
+			}
+			return null;
+		}
+	
 	public Vector<Patient> getPatientList() {
 		return patientList;
 	}
@@ -123,7 +147,28 @@ public class MainApplication {
 		return procedureList;
 	}
 	
-	public static void main(String[] args){
+	public void updateNos(){
+		for(int i=0;i<patientList.size();i++){
+			Patient pat = patientList.get(i);
+			Patient.setNo(Math.max(Patient.getNo(), pat.getPatientNo()+1));
+			Vector<Invoice> listInv = pat.getP_invoiceList();
+			for (int j=0; j<listInv.size();j++){
+				Invoice inv = listInv.get(j);
+				Invoice.setNo(Math.max(Invoice.getNo(), inv.getInvoiceNo()+1));
+				Vector<Payment> listPay = inv.getP_paymentList();
+				for (int k=0; k<listPay.size();k++){
+					Payment pay = listPay.get(k);
+					Payment.setNo(Math.max(Payment.getNo(), pay.getPaymentNo()+1));
+				}
+			}
+		}
+		for(int i=0;i<procedureList.size();i++){
+			Procedure proc = procedureList.get(i);
+			Procedure.setNo(Math.max(Procedure.getNo(), proc.getProcNo()+1));
+		}
+	}
+	
+	/*public static void main(String[] args){
 		//Creating the main application
 		MainApplication mainapp = new MainApplication();
 		//Adding the procedures
@@ -167,6 +212,6 @@ public class MainApplication {
 		System.out.println("All patients are here ? "+
 				(mainapp.patientisIn("p1")||mainapp.patientisIn("p2")||
 						mainapp.patientisIn("p3")) );
-	}
+	}*/
 
 }

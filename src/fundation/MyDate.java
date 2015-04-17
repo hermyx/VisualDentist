@@ -1,7 +1,16 @@
 package fundation;
-
 import java.util.Calendar;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@XmlRootElement(name = "MyDate")
+//If you want you can define the order in which the fields are written
+//Optional
+@XmlType(propOrder = { "day", "month" })
+@XmlAccessorType(XmlAccessType.FIELD)
 public class MyDate {
 	private int day;
 	private int month;
@@ -9,6 +18,20 @@ public class MyDate {
 	public MyDate(int d, int m){
 		day=d;
 		month=m;
+	}
+	
+	/**
+	 * 
+	 * @param s : String in the format day/month
+	 */
+	public MyDate(String s){
+		String[] parts = s.split("/");
+		String d = parts[0]; 
+		int day = Integer.parseInt(d);
+		String m = parts[1];
+		int month = Integer.parseInt(m);
+		this.day=day;
+		this.month=month;
 	}
 	
 	public MyDate(){
@@ -65,23 +88,5 @@ public class MyDate {
 		return ""+this.day+"/"+this.month+"";
 	}
 	
-	public void stringToDate(String s){
-		String[] parts = s.split("/");
-		String d = parts[0]; 
-		int day = Integer.parseInt(d);
-		String m = parts[1];
-		int month = Integer.parseInt(m);
-		this.day=day;
-		this.month=month;
-	}
-	
-	public static void main(String args[]){
-		MyDate d = new MyDate(0,0);
-		d.getToToday();
-		System.out.println(d.toString());
-		d.stringToDate("20/06");
-		System.out.println(d.toString());
-		
-	}
 	
 }

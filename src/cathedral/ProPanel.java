@@ -10,9 +10,13 @@ import fundation.Procedure;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.Vector;
 
 public class ProPanel extends JPanel{
 	public VisualDentist visual;
+	private JTable table;
 	
 	public ProPanel(VisualDentist vd){
 		super();
@@ -47,9 +51,9 @@ public class ProPanel extends JPanel{
 		JPanel buttPan = new JPanel();
 		JButton addP = new JButton("Add Procedure");
 		buttPan.add(addP);
-		JButton update = new JButton("Update Procedure");
+		JButton update = new JButton("Update Current Procedure");
 		buttPan.add(update);
-		JButton del = new JButton("Delete Procedure");
+		JButton del = new JButton("Delete Current Procedure");
 		buttPan.add(del);
 		buttPan.setVisible(true);
 		add(buttPan);
@@ -60,21 +64,39 @@ public class ProPanel extends JPanel{
 		listPan.setLayout(new BorderLayout());
 		String[] columnNames = {"Procedure Name",
                 "Procedure Cost", "ID"};
-		// Construct on load !
-		String[][] data = {
-				{"X-Ray", "250"},
-			    {"Filling", "200"},
-			    {"Extraction", "250"},
-			    {"Dentures", "300"},
-			    {"Apicoectomie", "400"}
-			};
-		for(int i=0; i<data.length;i++){
-			Procedure p = new Procedure(data[i][0],
-        			Double.parseDouble(data[i][1]));
-        	visual.addProcedure(p);
+		String[][] data = null;
+		//This code is building the default list of Procedure from a file
+		try{
+			String filePath = "./procOnLoad.txt";
+			BufferedReader buff = new BufferedReader(new FileReader(filePath));
+			String line;
+			int nbLine = 0;
+			while ((line = buff.readLine()) != null) {
+				nbLine++;
+			}
+			buff.close();
+			try{
+				buff = new BufferedReader(new FileReader(filePath));
+				data = new String[nbLine][3];
+				int i = 0;
+				while ((line = buff.readLine()) != null) {
+					String[] lineSplited = line.split(":");
+					data[i][0]=lineSplited[0];
+					data[i][1]=lineSplited[1];
+					Procedure p = new Procedure(data[i][0],
+			       			Double.parseDouble(data[i][1]));
+					data[i][2]=p.getProcNo()+"";
+			       	visual.addProcedure(p);
+			       	i++;
+				}
+				buff.close();
+			} catch (Exception exc) {
+				System.out.println("Erreur Reading of the procOnLoad File 1 : --" + exc.toString());
+			}
+		} catch (Exception exc){
+			System.out.println("Erreur Reading of the procOnLoad File 2 : --" + exc.toString());
 		}
-		JTable table = new JTable(new DefaultTableModel(data, columnNames){
-
+		table = new JTable(new DefaultTableModel(data, columnNames){
 			@Override
 		    public boolean isCellEditable(int row, int column) {
 		       return false;
@@ -105,29 +127,69 @@ public class ProPanel extends JPanel{
 							Integer.parseInt((String)table.getModel().getValueAt(row, 2))
 							,procname.getText(), Double.parseDouble(proccost.getText()));
 				}
+				else {
+					JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Procedure!");
+				}
 			}
 		});
 		addP.addActionListener(new ActionListener() {
 		        public void actionPerformed(ActionEvent e){
 		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
-		        	model.addRow(new String[] {procname.getText(),proccost.getText()});
-		        	MyDate today = new MyDate();
-		        	today.getToToday();
+		        	
 		        	//Exception for string to double
+		        	try{
 		        	Procedure p = new Procedure(procname.getText(),
 		        			Double.parseDouble(proccost.getText()));
 		        	visual.addProcedure(p);
 		        	System.out.println(p.getProcNo());
+		        	model.addRow(new String[] {procname.getText(),proccost.getText(),p.getProcNo()+""});
+		        	}
+		        	catch(Exception exc){
+		        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, enter a valid number!");
+		        	}
 		        }
 		});
+		
 		del.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e){
-	        	DefaultTableModel model = (DefaultTableModel) table.getModel();
-	        	//Exception Handling ArrayIndexOutOfBoundException
-	        	model.removeRow(table.getSelectedRow());	
+	        	int row = table.getSelectedRow();
+	        	if(row != -1){
+		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
+		        	//Exception Handling ArrayIndexOutOfBoundException
+		        	visual.deleteProcedure(Integer.parseInt((String)model.getValueAt(row, 2)));
+		        	model.removeRow(row);
+	        	} else {
+	        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Procedure!");
+	        	}
 	        }
 		});
 
 		setVisible(true);	
+	}
+	
+	public String[] getRow(int noProc){
+		String[] ret = new String[3];
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for(int i = model.getRowCount() - 1; i > -1; i--){
+			if(Integer.parseInt((String)model.getValueAt(i, 2))==noProc){
+				ret[0]=(String)model.getValueAt(i, 0);
+				ret[1]=(String)model.getValueAt(i, 1);
+				ret[2]=(String)model.getValueAt(i, 2);
+			}
+		}
+		return ret;
+	}
+	
+	public void updateProc(Vector<Procedure> v){
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for(int i = model.getRowCount() - 1; i > -1; i--){
+		// Exception Handling ArrayIndexOutOfBoundException
+		model.removeRow(i);
+		}
+		for(Procedure p : v){
+			String[] rowData = {p.getProcName(), p.getProcCost()+"", p.getProcNo()+""};
+			model.addRow(rowData);
+		}
+		
 	}
 }

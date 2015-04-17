@@ -1,16 +1,35 @@
 package fundation;
 import java.util.Vector;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement(name = "Invoice")
+//If you want you can define the order in which the fields are written
+//Optional
+@XmlType(propOrder = { "date", "invoiceNo", "isPaid", "p_paymentList", "p_procList" })
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Invoice {
 	
 	private static int No = 0;
 	
 	private int invoiceNo;
 	private MyDate date;
+	@XmlElementWrapper(name = "p_paymentList")
+	@XmlElement(name = "Payment")
 	private Vector<Payment> p_paymentList;
+	@XmlElementWrapper(name = "p_procList")
+	@XmlElement(name = "Procedure")
 	private Vector<Procedure> p_procList;
 	private boolean isPaid;
+	
+	public Invoice(){
+			
+	}
 	
 	public Invoice(MyDate d){
 		invoiceNo = No++;
@@ -63,11 +82,31 @@ public class Invoice {
 		return ret;
 	}
 	
+	public void deletePayment(int no){
+		Payment p = null;
+		for (Payment pay: p_paymentList){
+			if(pay.getPaymentNo() == no){
+				p=pay;
+			}
+		}
+		p_paymentList.remove(p);
+	}
+	
 	public boolean addProc(Procedure p){
 		boolean ret = p_procList.add(p);
 		isPaid = (totPayment()>=totProc());
 		return ret;
 		
+	}
+	
+	public void deleteProc(int no){
+		Procedure p = null;
+		for (Procedure pay: p_procList){
+			if(pay.getProcNo() == no){
+				p=pay;
+			}
+		}
+		p_procList.remove(p);
 	}
 	
 	public MyDate getDate(){
@@ -76,5 +115,13 @@ public class Invoice {
 
 	public boolean isPaid() {
 		return isPaid;
+	}
+
+	public static int getNo() {
+		return No;
+	}
+
+	public static void setNo(int no) {
+		No = no;
 	}
 }

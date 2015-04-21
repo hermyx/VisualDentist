@@ -20,11 +20,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Vector;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 
 public class PatPanel extends JPanel {
@@ -79,10 +82,14 @@ public class PatPanel extends JPanel {
 		buttPan.add(update);
 		JButton delete = new JButton("Delete Patient");
 		buttPan.add(delete);
-		JButton save = new JButton("Save and Quit");
-		buttPan.add(save);
-		JButton load = new JButton("Load");
-		buttPan.add(load);
+		JButton saveX = new JButton("Save XML and Quit");
+		buttPan.add(saveX);
+		JButton loadX = new JButton("Load from XML");
+		buttPan.add(loadX);
+		JButton saveS = new JButton("Save Serialization and Quit");
+		buttPan.add(saveS);
+		JButton loadS = new JButton("Load from Serialization");
+		buttPan.add(loadS);
 		JButton quit = new JButton("Quit without Saving");
 		buttPan.add(quit);
 		buttPan.setVisible(true);
@@ -119,7 +126,7 @@ public class PatPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
 				// Exception Handling ArrayIndexOutOfBoundException
-				if (row != -1) {
+				try {
 					if (!patname.getText().equals("")) {
 						table.setValueAt(patname.getText(), row, 0);
 					}
@@ -133,11 +140,14 @@ public class PatPanel extends JPanel {
 					visual.updatePatient(Integer.parseInt((String) table
 							.getModel().getValueAt(row, 3)), patname.getText(),
 							patAddr.getText(), patNum.getText());
+				} catch (ArrayIndexOutOfBoundsException exc){
+					JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Patient!");
 				}
 			}
 		});
 		addP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(patname.getText()==""){
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				Patient p = new Patient(patname.getText(), patAddr.getText(),
 						patNum.getText());
@@ -145,24 +155,27 @@ public class PatPanel extends JPanel {
 				model.addRow(new String[] { patname.getText(),
 						patAddr.getText(), patNum.getText(),
 						p.getPatientNo() + "" });
+				} else {
+					JOptionPane.showMessageDialog(visual.getFrame(),"Give a name to your Patient before adding him!");
+				}
 			}
 		});
 		delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
-	        	if(row != -1){
+	        	try{
 		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
 		        	//Exception Handling ArrayIndexOutOfBoundException
 		        	visual.deletePatient(Integer.parseInt((String)model.getValueAt(row, 3)));
 		        	model.removeRow(row);
 		        	currentPatientNo = -1 ;
-	        	} else {
-	        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Patient!");
-	        	}
+	        	} catch (ArrayIndexOutOfBoundsException exc){
+					JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Patient!");
+				}
 			}
 		});
 		
-		save.addActionListener(new ActionListener() {
+		saveX.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try{
 				JAXBContext context = JAXBContext.newInstance(MainApplication.class, Patient.class,
@@ -171,19 +184,13 @@ public class PatPanel extends JPanel {
 			    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			    m.marshal(visual.getApp(), new File("./save.xml"));
 			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
-				} catch (Exception exc) {
+				} catch (JAXBException exc) {
 					exc.printStackTrace();
 				}
 			}
 		});
-		
-		quit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
-			}
-		});
-		
-		load.addActionListener(new ActionListener() {
+
+		loadX.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try{
 				JAXBContext context = JAXBContext.newInstance(MainApplication.class, Patient.class,
@@ -194,9 +201,29 @@ public class PatPanel extends JPanel {
 			    MainApplication app = (MainApplication) um.unmarshal(new FileReader("./save.xml"));
 			    visual.setApp(app);
 			    visual.updateAll();
-				} catch (Exception exc) {
+				} catch (JAXBException | FileNotFoundException exc) {
 					exc.printStackTrace();
 				}
+			}
+		});
+		
+		saveS.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				visual.getApp().serialize();
+				visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
+		loadS.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				visual.getApp().unserialize();
+				visual.updateAll();
+			}
+		});
+		
+		quit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
 			}
 		});
 

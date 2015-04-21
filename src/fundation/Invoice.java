@@ -1,4 +1,5 @@
 package fundation;
+import java.io.Serializable;
 import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -11,8 +12,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "Invoice")
 @XmlType(propOrder = { "date", "invoiceNo", "isPaid", "p_paymentList", "p_procList" })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Invoice {
+public class Invoice implements Serializable{
 	
+	private static final long serialVersionUID = 5003596916184703159L;
+
 	private static int No = 0;
 	
 	private int invoiceNo;

@@ -1,5 +1,6 @@
 package fundation;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -10,8 +11,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "Payment")
 @XmlType(propOrder = { "paymentDate", "paymentAmt", "paymentNo" })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Payment implements Comparable<Patient>, Comparator<Patient> {
-	
+public class Payment implements Comparable<Patient>, Comparator<Patient>, Serializable {
+
+	private static final long serialVersionUID = -9164901709065404734L;
+
 	public Payment(){
 		
 	}

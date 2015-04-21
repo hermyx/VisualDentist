@@ -1,4 +1,5 @@
 package fundation;
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Vector;
 
@@ -8,8 +9,13 @@ import javax.xml.bind.annotation.*;
 @XmlRootElement(name = "Patient")
 @XmlType(propOrder = { "patientName", "patientNo", "patientAdd", "patientPhone", "p_invoiceList" })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Patient implements Comparable<Patient>, Comparator<Patient>{
-	
+public class Patient implements Comparable<Patient>, Comparator<Patient>, Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4861046926252963428L;
+
 	private static int No = 0;
 	
 	private int patientNo;

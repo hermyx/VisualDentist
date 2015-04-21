@@ -1,4 +1,11 @@
 package fundation;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -7,8 +14,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(namespace = "fundation")
 
-public class MainApplication {
-	
+public class MainApplication implements Serializable {
+
+	private static final long serialVersionUID = -3995844243810469439L;
 	@XmlElementWrapper(name = "patientList")
 	@XmlElement(name = "Patient")
 	private Vector<Patient> patientList;
@@ -146,6 +154,38 @@ public class MainApplication {
 		return procedureList;
 	}
 	
+	public void serialize(){
+		try {
+			File file =  new File("SerialSave.txt") ;
+			ObjectOutputStream oos;
+			oos = new ObjectOutputStream(new FileOutputStream(file));
+			oos.writeObject(patientList);
+			oos.writeObject(procedureList);
+			oos.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	public void unserialize(){
+		try {
+			File file =  new File("SerialSave.txt") ;
+			ObjectInputStream ois;
+			ois = new ObjectInputStream(new FileInputStream(file));
+			@SuppressWarnings("unchecked")
+			Vector<Patient> pats = (Vector<Patient>)ois.readObject();
+			@SuppressWarnings("unchecked")
+			Vector<Procedure> procs = (Vector<Procedure>)ois.readObject();
+			ois.close();
+			this.patientList=pats;
+			this.procedureList=procs;
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void updateNos(){
 		for(int i=0;i<patientList.size();i++){
 			Patient pat = patientList.get(i);
@@ -168,7 +208,7 @@ public class MainApplication {
 	}
 	
 	// There is some test for the mainApplication without the GUI
-	/* public static void main(String[] args){
+	/*public static void main(String[] args){
 		//Creating the main application
 		MainApplication mainapp = new MainApplication();
 		//Adding the procedures
@@ -212,6 +252,8 @@ public class MainApplication {
 		System.out.println("All patients are here ? "+
 				(mainapp.patientisIn("p1")||mainapp.patientisIn("p2")||
 						mainapp.patientisIn("p3")) );
+		mainapp.serializePats();
+		mainapp.unserializePats();
 	}*/
 
 }

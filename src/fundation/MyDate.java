@@ -1,4 +1,5 @@
 package fundation;
+import java.io.Serializable;
 import java.util.Calendar;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,7 +10,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "MyDate")
 @XmlType(propOrder = { "day", "month" })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MyDate {
+public class MyDate implements Serializable{
+	
+	private static final long serialVersionUID = -3591859654326841558L;
 	private int day;
 	private int month;
 

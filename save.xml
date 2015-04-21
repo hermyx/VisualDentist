@@ -1,6 +1,81 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:mainApplication xmlns:ns2="fundation">
-    <patientList/>
+    <patientList>
+        <Patient>
+            <patientName>Toto</patientName>
+            <patientNo>0</patientNo>
+            <patientAdd>Tutu</patientAdd>
+            <patientPhone>42424</patientPhone>
+            <p_invoiceList>
+                <invoice>
+                    <date>
+                        <day>20</day>
+                        <month>4</month>
+                    </date>
+                    <invoiceNo>2</invoiceNo>
+                    <isPaid>true</isPaid>
+                    <p_paymentList/>
+                    <p_procList/>
+                </invoice>
+            </p_invoiceList>
+        </Patient>
+        <Patient>
+            <patientName>qsdfghj</patientName>
+            <patientNo>1</patientNo>
+            <patientAdd>azertyuio</patientAdd>
+            <patientPhone>999</patientPhone>
+            <p_invoiceList>
+                <invoice>
+                    <date>
+                        <day>21</day>
+                        <month>4</month>
+                    </date>
+                    <invoiceNo>0</invoiceNo>
+                    <isPaid>true</isPaid>
+                    <p_paymentList/>
+                    <p_procList/>
+                </invoice>
+                <invoice>
+                    <date>
+                        <day>21</day>
+                        <month>4</month>
+                    </date>
+                    <invoiceNo>1</invoiceNo>
+                    <isPaid>false</isPaid>
+                    <p_paymentList>
+                        <Payment>
+                            <paymentDate>
+<day>21</day>
+<month>4</month>
+                            </paymentDate>
+                            <paymentAmt>50.0</paymentAmt>
+                            <paymentNo>0</paymentNo>
+                        </Payment>
+                        <Payment>
+                            <paymentDate>
+<day>21</day>
+<month>4</month>
+                            </paymentDate>
+                            <paymentAmt>50.0</paymentAmt>
+                            <paymentNo>1</paymentNo>
+                        </Payment>
+                    </p_paymentList>
+                    <p_procList>
+                        <Procedure>
+                            <procName>Extraction</procName>
+                            <procCost>75.0</procCost>
+                            <procNo>2</procNo>
+                        </Procedure>
+                        <Procedure>
+                            <procName>Extraction</procName>
+                            <procCost>75.0</procCost>
+                            <procNo>2</procNo>
+                        </Procedure>
+                    </p_procList>
+                </invoice>
+            </p_invoiceList>
+        </Patient>
+    </patientList>
     <prList>
         <Procedure>
             <procName>X-Ray</procName>
@@ -26,6 +101,11 @@
             <procName>Apiectomie</procName>
             <procCost>100.0</procCost>
             <procNo>4</procNo>
+        </Procedure>
+        <Procedure>
+            <procName>Ademas</procName>
+            <procCost>42.0</procCost>
+            <procNo>5</procNo>
         </Procedure>
     </prList>
 </ns2:mainApplication>

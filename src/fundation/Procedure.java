@@ -1,5 +1,7 @@
 package fundation;
 
+import java.io.Serializable;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,7 +10,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "Procedure")
 @XmlType(propOrder = { "procName", "procCost", "procNo"})
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Procedure {
+public class Procedure implements Serializable {
+
+	private static final long serialVersionUID = -391036370938978662L;
+
 	private static int No = 0;
 	
 	private int procNo;

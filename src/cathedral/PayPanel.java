@@ -90,8 +90,9 @@ public class PayPanel extends JPanel{
 			DefaultListCellRenderer renderer =  (DefaultListCellRenderer)listProc.getCellRenderer();  
 			renderer.setHorizontalAlignment(JLabel.CENTER);  
 			listProc.setBorder(new LineBorder(Color.BLACK));
-			listProc.setMaximumSize(new Dimension(400, 130));
-			procPan.add(listProc, BorderLayout.CENTER);
+			JScrollPane scrollPaneList = new JScrollPane(listProc);
+			scrollPaneList.setPreferredSize(new Dimension(250,130));
+			procPan.add(scrollPaneList, BorderLayout.CENTER);
 			
 			procPan.setVisible(true);
 			listPan.add(procPan);

@@ -4,24 +4,24 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
+
 
 import fundation.*;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.Vector;
 
 public class VisualDentist {
@@ -37,55 +37,58 @@ public class VisualDentist {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
 		frame.setTitle("Visual Dentist");
 		frame.setSize(JFrame.MAXIMIZED_VERT,JFrame.MAXIMIZED_HORIZ);
-		
 		frame.setLocationRelativeTo(null);
-		
-		
-		
-		JPanel mainPanel = new JPanel();
-		mainPanel.setVisible(true);
-		//mainPanel.setBackground(Color.BLACK);
 		
 		Container contentPane = frame.getContentPane();
 		contentPane.setLayout(new BorderLayout());
 		
-		//Full Screen
+		//For the full screen
 		frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double width = screenSize.getWidth();
-		double height = screenSize.getHeight();
 		System.out.println(width);
 		
+		// Creation of the menu bar
 		JMenuBar menuB = new JMenuBar();
 		JMenu menu = new JMenu("Options");
 		menu.setMnemonic(KeyEvent.VK_A);
 		menu.getAccessibleContext().setAccessibleDescription(
-		        "You can choose the different screens");
+		        "You can choose the different screens or create the reports");
 		menuB.add(menu);
 		
-		//Menu Items
-		JMenuItem menuItemMaint = new JMenuItem("Maintenance Screen",
-                new ImageIcon("tool.png"));
-		menuItemMaint.setMnemonic(KeyEvent.VK_B);
-		menu.add(menuItemMaint);
-		
+		// Creation of the menu's items
 		JMenuItem menuItemManag = new JMenuItem("Payment Manager Screen",
                 new ImageIcon("dol.png"));
 		menuItemManag.setMnemonic(KeyEvent.VK_0);
 		menu.add(menuItemManag);
 		
+		JMenuItem menuItemMaint = new JMenuItem("Maintenance Screen",
+                new ImageIcon("tool.png"));
+		menuItemMaint.setMnemonic(KeyEvent.VK_B);
+		menu.add(menuItemMaint);
+		
+		menu.addSeparator();
+		
+		JMenuItem menuAllPatReport = new JMenuItem("Make a report for all Patients",
+                new ImageIcon("page.png"));
+		menuAllPatReport.setMnemonic(KeyEvent.VK_0);
+		menu.add(menuAllPatReport);
+		
+		JMenuItem menuNotPaidPatReport = 
+				new JMenuItem("Make a report for Patients who hadn't paid for six month",
+		                new ImageIcon("page.png"));
+		menuNotPaidPatReport.setMnemonic(KeyEvent.VK_0);
+		menu.add(menuNotPaidPatReport);
+		
+		// We create the main panels of the application
+		
 		frame.setJMenuBar(menuB);
-		
 		patPanel = new PatPanel(this);
-		//patPanel.setPreferredSize(new Dimension((int)(width/2), (int)(height*0.65)));
-
-		proPanel = new ProPanel(this);
-		//proPanel.setPreferredSize(new Dimension((int)(width/2), (int)(height*0.65)));
-		
+		proPanel = new ProPanel(this);		
 		invGlobPanel = new InvGlobalPanel(this);
-		//payPanel.setPreferredSize(new Dimension((int)width, (int)(height*0.35)));
 		
+		// This code is for managing the Card Layout
 		JPanel manager = new JPanel(new BorderLayout());
 		manager.add(patPanel, BorderLayout.NORTH);
 		manager.add(invGlobPanel, BorderLayout.SOUTH);
@@ -98,6 +101,8 @@ public class VisualDentist {
 		
 		contentPane.add(cards);
 		
+		
+		////////////////////////// Actions //////////////////////////
 		menuItemMaint.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -112,6 +117,64 @@ public class VisualDentist {
 			}
 		});
 		
+		menuAllPatReport.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				PrintWriter writer;
+				try {
+					writer = new PrintWriter("reportAllPatient.txt", "UTF-8");
+					writer.println("This is the list of all the patients in the database "+
+							"and all their informations :\n");
+					Patient c = new Patient();
+					Vector<Patient> sortedList = app.getPatientList();
+					Collections.sort(sortedList,c);
+					for(int i = 0; i < sortedList.size(); i++){
+						writer.print(i+" - ");
+						writer.println(sortedList.get(i).toString());
+	        		}
+	        		writer.close();
+	        		JOptionPane.showMessageDialog(getFrame(),"Report made at reportAllPatient.txt!");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		menuNotPaidPatReport.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				PrintWriter writer;
+				try {
+					writer = new PrintWriter("reportNotPaidPatient.txt", "UTF-8");
+					writer.println("This is the list of all the patients that owe money "+
+							"but haven't made a payment in 6 months :\n");
+					Payment c = new Payment	();
+					Vector<Patient> sortedList = app.getPatientList();
+					Collections.sort(sortedList,c);
+					Vector<Patient> temp = sortedList;
+					for(int i = 0; i < temp.size(); i++){
+						if(sortedList.get(i).moneyDue()<=0){
+							sortedList.remove(i);
+						}
+	        		}
+					for(int i = 0; i < sortedList.size(); i++){
+						writer.print(i+" - ");
+						writer.println(sortedList.get(i).toString()+" This patient owes : "
+						+sortedList.get(i).moneyDue()+" euros\n");
+	        		}
+	        		writer.close();
+	        		JOptionPane.showMessageDialog(getFrame(),"Report made at reportNotPaidPatient.txt!");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		////////////////////////////////////////////////////////////////
 		frame.setVisible(true);
 		
 	}

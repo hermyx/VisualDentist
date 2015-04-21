@@ -10,7 +10,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MainApplication {
 	
 	@XmlElementWrapper(name = "patientList")
-	// XmlElement sets the name of the entities
 	@XmlElement(name = "Patient")
 	private Vector<Patient> patientList;
 	@XmlElementWrapper(name = "prList")
@@ -168,7 +167,8 @@ public class MainApplication {
 		}
 	}
 	
-	/*public static void main(String[] args){
+	// There is some test for the mainApplication without the GUI
+	/* public static void main(String[] args){
 		//Creating the main application
 		MainApplication mainapp = new MainApplication();
 		//Adding the procedures

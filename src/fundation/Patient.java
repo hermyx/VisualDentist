@@ -1,15 +1,14 @@
 package fundation;
+import java.util.Comparator;
 import java.util.Vector;
 
 import javax.xml.bind.annotation.*;
 
 
 @XmlRootElement(name = "Patient")
-// If you want you can define the order in which the fields are written
-// Optional
 @XmlType(propOrder = { "patientName", "patientNo", "patientAdd", "patientPhone", "p_invoiceList" })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Patient {
+public class Patient implements Comparable<Patient>, Comparator<Patient>{
 	
 	private static int No = 0;
 	
@@ -55,9 +54,12 @@ public class Patient {
 
 	@Override
 	public String toString() {
-		return "Patient [patientNo=" + patientNo + ", patientName=" + patientName
-				+ ", patientAdd=" + patientAdd + ", patientPhone="
-				+ patientPhone + "]";
+		String ret = patientName;
+		ret+="\n\tInvoices :\n";
+		for(int i=0;i<p_invoiceList.size();i++){
+			ret+="\t"+i+")"+p_invoiceList.get(i).toString()+"\n";
+		}
+		return ret;
 	}
 
 	public int getPatientNo() {
@@ -166,6 +168,25 @@ public class Patient {
 
 	public static void setNo(int no) {
 		No = no;
+	}
+
+	@Override
+	public int compare(Patient pat1, Patient pat2) {
+		return pat1.getPatientName().compareTo(pat2.getPatientName());
+	}
+
+	@Override
+	public int compareTo(Patient pat) {
+		return patientName.compareTo(pat.getPatientName());
+	}
+	
+	public int moneyDue(){
+		int moneyDue=0;
+		for(Invoice i:getP_invoiceList()){
+			moneyDue-=i.totPayment();
+			moneyDue+=i.totProc();
+		}
+		return moneyDue;
 	}
 	
 }

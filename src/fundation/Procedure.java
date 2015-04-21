@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Procedure")
-//If you want you can define the order in which the fields are written
-//Optional
 @XmlType(propOrder = { "procName", "procCost", "procNo"})
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Procedure {
@@ -44,8 +42,7 @@ public class Procedure {
 	}
 
 	public String toString() {
-		return "Procedure [procNo=" + procNo + ", procName=" + procName
-				+ ", procCost=" + procCost + "]";
+		return procName+" : "+procCost+" euros";
 	}
 
 	public static int getNo() {

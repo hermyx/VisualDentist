@@ -1,13 +1,10 @@
 package cathedral;
 
 import javax.swing.BoxLayout;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JComboBox;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -18,23 +15,20 @@ import javax.swing.table.DefaultTableModel;
 import fundation.*;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Vector;
 
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 public class PatPanel extends JPanel {
+	private static final long serialVersionUID = -2127048692662400975L;
 	public VisualDentist visual;
 	private int currentPatientNo;
 	private JTable table;
@@ -85,10 +79,12 @@ public class PatPanel extends JPanel {
 		buttPan.add(update);
 		JButton delete = new JButton("Delete Patient");
 		buttPan.add(delete);
-		JButton save = new JButton("Save");
+		JButton save = new JButton("Save and Quit");
 		buttPan.add(save);
 		JButton load = new JButton("Load");
 		buttPan.add(load);
+		JButton quit = new JButton("Quit without Saving");
+		buttPan.add(quit);
 		buttPan.setVisible(true);
 		add(buttPan);
 		// ///////////////////////////////////////////////////////
@@ -102,6 +98,7 @@ public class PatPanel extends JPanel {
 		String[][] data = {};
 		// data et title sont toujours nos tableaux d'objets !
 		table = new JTable(new DefaultTableModel(data, columnNames) {
+			private static final long serialVersionUID = -4898267686891186105L;
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return false;
@@ -115,7 +112,9 @@ public class PatPanel extends JPanel {
 		// listPan.setBackground(Color.GREEN);
 		listPan.setVisible(true);
 		add(listPan);
-		// ////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////
+		
+		/////////////////////////// Actions ///////////////////////////////
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
@@ -142,9 +141,6 @@ public class PatPanel extends JPanel {
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				Patient p = new Patient(patname.getText(), patAddr.getText(),
 						patNum.getText());
-				if (p.getPatientNo() > 2) {
-					int i = 1;
-				}
 				visual.addPatient(p);
 				model.addRow(new String[] { patname.getText(),
 						patAddr.getText(), patNum.getText(),
@@ -174,11 +170,16 @@ public class PatPanel extends JPanel {
 			    Marshaller m = context.createMarshaller();
 			    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			    m.marshal(visual.getApp(), new File("./save.xml"));
-			    System.out.println("Output from our XML File: ");
-			    Unmarshaller um = context.createUnmarshaller();
+			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
 				} catch (Exception exc) {
 					exc.printStackTrace();
 				}
+			}
+		});
+		
+		quit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
 			}
 		});
 		
@@ -199,6 +200,7 @@ public class PatPanel extends JPanel {
 			}
 		});
 
+		// The action in case the selected case changes
 		table.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 					public void valueChanged(ListSelectionEvent event) {
@@ -208,7 +210,6 @@ public class PatPanel extends JPanel {
 			        			visual.getInvGlobPanel().getInvPan().deleteAll();
 			        			visual.getInvGlobPanel().getPayPan().deleteAll();
 			        		} else {
-			        			int i = table.getSelectedRow();
 								currentPatientNo = Integer.parseInt(table.getModel()
 										.getValueAt(table.getSelectedRow(), 3)
 										.toString());
@@ -218,7 +219,8 @@ public class PatPanel extends JPanel {
 					}
 				}
 		);
-
+		//////////////////////////////////////////////////////////////////////
+		
 		setVisible(true);
 	}
 
@@ -226,6 +228,7 @@ public class PatPanel extends JPanel {
 		return currentPatientNo;
 	}
 	
+	//Update all the patients to the vector in parameter
 	public void updatePat(Vector<Patient> v){
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for(int i = model.getRowCount() - 1; i > -1; i--){

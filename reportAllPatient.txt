@@ -1,0 +1,2 @@
+This is the list of all the patients in the database and all their informations :
+

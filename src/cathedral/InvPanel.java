@@ -3,18 +3,18 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 
 import fundation.Invoice;
 import fundation.MyDate;
 import fundation.Patient;
-import fundation.Procedure;
+
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Vector;
 
 public class InvPanel extends JPanel{
+	private static final long serialVersionUID = 49883997209449629L;
 	public VisualDentist visual;
 	public InvGlobalPanel invGlob;
 	private int currentInvoiceNo;
@@ -59,6 +59,8 @@ public class InvPanel extends JPanel{
 		String[][] data = {
 			};
 		table = new JTable(new DefaultTableModel(data, colName){
+			private static final long serialVersionUID = -224929123613544328L;
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 		    return false;
@@ -73,6 +75,7 @@ public class InvPanel extends JPanel{
 		/////////////////////////////////////////////////////////
 		add(subPan);
 
+		/////////////////// Actions //////////////////////////////////
 		create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(visual.getPatPanel().getCurrentPatientNo()!=-1){
@@ -118,10 +121,13 @@ public class InvPanel extends JPanel{
 	        	}
 	        }
 	    });
+		
+		////////////////////////////////////////////////////////////////////////
 		setVisible(true);
 
 	}
 	
+	// Update the table of Invoices in case the patient has changed
 	public void updateInv(Vector<Invoice> v){
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for(int i = model.getRowCount() - 1; i > -1; i--){
@@ -135,6 +141,7 @@ public class InvPanel extends JPanel{
 		currentInvoiceNo=-1;
 	}
 	
+	//Update the particular invoice
 	public void updateInv(Invoice inv){
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for(int i = model.getRowCount() - 1; i > -1; i--){

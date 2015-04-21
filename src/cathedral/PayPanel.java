@@ -4,7 +4,6 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 
 import fundation.Invoice;
 import fundation.MyDate;
@@ -17,20 +16,19 @@ import java.awt.event.*;
 import java.util.Vector;
 
 public class PayPanel extends JPanel{
+	private static final long serialVersionUID = -775143490271160762L;
 	public VisualDentist visual;
 	public InvGlobalPanel invGlob;
 	private JTable table;
 	private JTable tableProc;
 	private JList<String> listProc;
 	private int currentListProcNo;
-	private int currentTableProcNo;
 	
 	public <visual> PayPanel(VisualDentist vd, InvGlobalPanel igp){
 		super();
 		visual=vd;
 		invGlob = igp;
 		currentListProcNo = -1;
-		currentTableProcNo = -1;
 		setLayout(new BoxLayout(this,1));		
 		//////////////// Infos Pan //////////////////////////////
 		JPanel infosPan = new JPanel();
@@ -78,6 +76,7 @@ public class PayPanel extends JPanel{
 		////////////// List Pan /////////////////////////////////
 		JPanel listPan = new JPanel();
 		
+			// Panel with the table and the list of procedures
 			JPanel procPan = new JPanel();
 			procPan.setLayout(new BorderLayout());
 			JLabel select = new JLabel("Please select the procedure among the list :");
@@ -104,6 +103,8 @@ public class PayPanel extends JPanel{
 			Object[][] dataProc = {
 				};
 			tableProc = new JTable(new DefaultTableModel(dataProc, columnNamesProc) {
+				private static final long serialVersionUID = -7729723834826859596L;
+
 				@Override
 				public boolean isCellEditable(int row, int column) {
 					return false;
@@ -117,6 +118,7 @@ public class PayPanel extends JPanel{
 			tabProcPan.setVisible(true);
 			listPan.add(tabProcPan);
 			
+			// The panel with the payments
 			JPanel tabPan = new JPanel();
 			tabPan.setLayout(new BorderLayout());
 			String[] columnNames = {"Payment Date",
@@ -124,6 +126,8 @@ public class PayPanel extends JPanel{
 			Object[][] data = {
 				};
 			table = new JTable(new DefaultTableModel(data, columnNames) {
+				private static final long serialVersionUID = 3624857536438249140L;
+
 				@Override
 				public boolean isCellEditable(int row, int column) {
 					return false;
@@ -139,12 +143,13 @@ public class PayPanel extends JPanel{
 			
 		listPan.setVisible(true);
 		add(listPan);
-		//////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////
+		
+		/////////////////////////// Action //////////////////////////////////
 		updateProc.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				DefaultListModel<String> listModel = (DefaultListModel<String>) listProc.getModel();
 		        listModel.removeAllElements();
-				Vector<String> listName = new Vector<String>(0);
 				for(Procedure proc: visual.getProcedure()){
 					listModel.addElement(proc.getProcName());
 				}
@@ -241,19 +246,15 @@ public class PayPanel extends JPanel{
 		tableProc.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
 	        public void valueChanged(ListSelectionEvent event) {
 	        	if(!event.getValueIsAdjusting()){
-					if(table.getSelectedRow()==-1){
-	        			currentTableProcNo = -1;
-	        		} else {
-						currentTableProcNo = Integer.parseInt(table.getModel()
-								.getValueAt(table.getSelectedRow(), 2).toString());
-	        		}
 				}
 	        }
 	    });
+		/////////////////////////////////////////////////////////////////////////////
 		
 		setVisible(true);	
 	}
 	
+	// Updates the payments according to the vector in parameters
 	public void updatePay(Vector<Payment> v){
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for(int i = model.getRowCount() - 1; i > -1; i--){
@@ -267,6 +268,7 @@ public class PayPanel extends JPanel{
 		}
 	}
 	
+	// Updates the procedures according to the vector in parameters
 	public void updateProc(Vector<Procedure> v){
 		DefaultTableModel modelProc = (DefaultTableModel) tableProc.getModel();
 		for(int i = modelProc.getRowCount() - 1; i > -1; i--){

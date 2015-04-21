@@ -1,29 +1,15 @@
 package cathedral;
 import javax.swing.BoxLayout;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JComboBox;
-import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
 
 import fundation.*;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.util.Vector;
 
 public class InvGlobalPanel extends JPanel {
+	private static final long serialVersionUID = -5330061009380955998L;
 	public VisualDentist visual;
 	private PayPanel payPan;
 	private InvPanel invPan;
@@ -54,7 +40,7 @@ public class InvGlobalPanel extends JPanel {
 			invPan = new InvPanel(visual, this);
 			manPan.add(invPan);
 			
-			JLabel payLab = new JLabel("Now enter add the the payment:");
+			JLabel payLab = new JLabel("Now enter and add the the payment:");
 			manPan.add(payLab);
 			
 			////////////// List Pan /////////////////////////////////
@@ -84,6 +70,7 @@ public class InvGlobalPanel extends JPanel {
 		invPan.updateInv(v);
 	}
 	
+	//Update the proc and pay in order the patient or invoice has changed
 	public void updatePan(int no){
 		Patient pat = visual.getPatient(visual.getPatPanel().getCurrentPatientNo());
     	Invoice i = pat.getInvoice(no);

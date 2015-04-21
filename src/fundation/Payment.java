@@ -1,18 +1,16 @@
 package fundation;
 
+import java.util.Comparator;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Payment")
-//If you want you can define the order in which the fields are written
-//Optional
 @XmlType(propOrder = { "paymentDate", "paymentAmt", "paymentNo" })
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Payment {
+public class Payment implements Comparable<Patient>, Comparator<Patient> {
 	
 	public Payment(){
 		
@@ -53,8 +51,7 @@ public class Payment {
 	}
 	@Override
 	public String toString() {
-		return "Payment [paymentNo=" + paymentNo + ", paymentAmt=" + paymentAmt
-				+ ", paymentDate=" + paymentDate + "]";
+		return "Payment made at the "+paymentDate+" of "+paymentAmt+" euros";
 	}
 
 	public int getPaymentNo() {
@@ -67,6 +64,30 @@ public class Payment {
 
 	public static void setNo(int no) {
 		No = no;
+	}
+
+	@Override
+	public int compare(Patient p1, Patient p2) {
+		int ret = 1;
+		if (p1.moneyDue() == p2.moneyDue()){
+			ret = 0;
+		}
+		if (p1.moneyDue() > p2.moneyDue()){
+			ret = -1;
+		}
+		return ret;
+	}
+
+	@Override
+	public int compareTo(Patient p) {
+		int ret = 1;
+		if (paymentAmt == p.moneyDue()){
+			ret = 0;
+		}
+		if (paymentAmt > p.moneyDue()){
+			ret = -1;
+		}
+		return ret;
 	}
 	
 	

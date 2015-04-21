@@ -7,8 +7,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "MyDate")
-//If you want you can define the order in which the fields are written
-//Optional
 @XmlType(propOrder = { "day", "month" })
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MyDate {
@@ -21,7 +19,6 @@ public class MyDate {
 	}
 	
 	/**
-	 * 
 	 * @param s : String in the format day/month
 	 */
 	public MyDate(String s){

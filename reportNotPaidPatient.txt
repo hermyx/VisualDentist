@@ -1,0 +1,2 @@
+This is the list of all the patients that owe money but haven't made a payment in 6 months :
+

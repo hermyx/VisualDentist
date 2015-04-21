@@ -1,138 +1,31 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:mainApplication xmlns:ns2="fundation">
-    <patientList>
-        <Patient>
-            <patientName></patientName>
-            <patientNo>0</patientNo>
-            <patientAdd></patientAdd>
-            <patientPhone></patientPhone>
-            <p_invoiceList>
-                <invoice>
-                    <date>
-                        <day>17</day>
-                        <month>4</month>
-                    </date>
-                    <invoiceNo>0</invoiceNo>
-                    <isPaid>true</isPaid>
-                    <p_paymentList/>
-                    <p_procList/>
-                </invoice>
-            </p_invoiceList>
-        </Patient>
-        <Patient>
-            <patientName></patientName>
-            <patientNo>1</patientNo>
-            <patientAdd></patientAdd>
-            <patientPhone></patientPhone>
-            <p_invoiceList>
-                <invoice>
-                    <date>
-                        <day>17</day>
-                        <month>4</month>
-                    </date>
-                    <invoiceNo>1</invoiceNo>
-                    <isPaid>true</isPaid>
-                    <p_paymentList>
-                        <Payment>
-                            <paymentDate>
-<day>17</day>
-<month>4</month>
-                            </paymentDate>
-                            <paymentAmt>0.0</paymentAmt>
-                            <paymentNo>0</paymentNo>
-                        </Payment>
-                        <Payment>
-                            <paymentDate>
-<day>17</day>
-<month>4</month>
-                            </paymentDate>
-                            <paymentAmt>0.0</paymentAmt>
-                            <paymentNo>1</paymentNo>
-                        </Payment>
-                        <Payment>
-                            <paymentDate>
-<day>17</day>
-<month>4</month>
-                            </paymentDate>
-                            <paymentAmt>0.0</paymentAmt>
-                            <paymentNo>3</paymentNo>
-                        </Payment>
-                    </p_paymentList>
-                    <p_procList/>
-                </invoice>
-                <invoice>
-                    <date>
-                        <day>17</day>
-                        <month>4</month>
-                    </date>
-                    <invoiceNo>2</invoiceNo>
-                    <isPaid>false</isPaid>
-                    <p_paymentList>
-                        <Payment>
-                            <paymentDate>
-<day>17</day>
-<month>4</month>
-                            </paymentDate>
-                            <paymentAmt>0.0</paymentAmt>
-                            <paymentNo>2</paymentNo>
-                        </Payment>
-                    </p_paymentList>
-                    <p_procList>
-                        <Procedure>
-                            <procName>1111</procName>
-                            <procCost>1141414.0</procCost>
-                            <procNo>6</procNo>
-                        </Procedure>
-                        <Procedure>
-                            <procName>Dentures</procName>
-                            <procCost>300.0</procCost>
-                            <procNo>3</procNo>
-                        </Procedure>
-                    </p_procList>
-                </invoice>
-                <invoice>
-                    <date>
-                        <day>17</day>
-                        <month>4</month>
-                    </date>
-                    <invoiceNo>3</invoiceNo>
-                    <isPaid>true</isPaid>
-                    <p_paymentList/>
-                    <p_procList/>
-                </invoice>
-            </p_invoiceList>
-        </Patient>
-    </patientList>
+    <patientList/>
     <prList>
         <Procedure>
             <procName>X-Ray</procName>
-            <procCost>250.0</procCost>
+            <procCost>50.0</procCost>
             <procNo>0</procNo>
         </Procedure>
         <Procedure>
             <procName>Filling</procName>
-            <procCost>200.0</procCost>
+            <procCost>100.0</procCost>
             <procNo>1</procNo>
         </Procedure>
         <Procedure>
             <procName>Extraction</procName>
-            <procCost>250.0</procCost>
+            <procCost>75.0</procCost>
             <procNo>2</procNo>
         </Procedure>
         <Procedure>
             <procName>Dentures</procName>
-            <procCost>300.0</procCost>
+            <procCost>150.0</procCost>
             <procNo>3</procNo>
         </Procedure>
         <Procedure>
-            <procName>Apicoectomie</procName>
-            <procCost>400.0</procCost>
+            <procName>Apiectomie</procName>
+            <procCost>100.0</procCost>
             <procNo>4</procNo>
-        </Procedure>
-        <Procedure>
-            <procName>ffdsfsdf</procName>
-            <procCost>42.0</procCost>
-            <procNo>5</procNo>
         </Procedure>
     </prList>
 </ns2:mainApplication>

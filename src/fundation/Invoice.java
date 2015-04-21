@@ -9,8 +9,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "Invoice")
-//If you want you can define the order in which the fields are written
-//Optional
 @XmlType(propOrder = { "date", "invoiceNo", "isPaid", "p_paymentList", "p_procList" })
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Invoice {
@@ -123,5 +121,24 @@ public class Invoice {
 
 	public static void setNo(int no) {
 		No = no;
+	}
+
+	@Override
+	public String toString() {
+		String ret = "Invoice made at the "+getDate().toString()+". ";
+		if(isPaid){
+			ret+="This invoice is paid. ";
+		} else {
+			ret+="This invoice is not paid. ";
+		}
+		ret+="\n\tProcedures took by the patient:\n";
+		for(int i=0;i<p_procList.size();i++){
+			ret+="\t\t("+i+")"+p_procList.get(i).toString()+"\n";
+		}
+		ret+="\n\tPayments of the patient:\n";
+		for(int i=0;i<p_paymentList.size();i++){
+			ret+="\t\t"+i+")"+p_paymentList.get(i).toString()+"\n";
+		}
+		return ret;
 	}
 }

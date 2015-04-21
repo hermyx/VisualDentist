@@ -1,20 +1,19 @@
 package cathedral;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 
-import fundation.Invoice;
-import fundation.MyDate;
-import fundation.Patient;
 import fundation.Procedure;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.util.Vector;
 
 public class ProPanel extends JPanel{
+
+	private static final long serialVersionUID = -4468931122345721848L;
 	public VisualDentist visual;
 	private JTable table;
 	
@@ -55,6 +54,8 @@ public class ProPanel extends JPanel{
 		buttPan.add(update);
 		JButton del = new JButton("Delete Current Procedure");
 		buttPan.add(del);
+		JButton save = new JButton("Save current list into default one");
+		buttPan.add(save);
 		buttPan.setVisible(true);
 		add(buttPan);
 		/////////////////////////////////////////////////////////
@@ -97,6 +98,7 @@ public class ProPanel extends JPanel{
 			System.out.println("Erreur Reading of the procOnLoad File 2 : --" + exc.toString());
 		}
 		table = new JTable(new DefaultTableModel(data, columnNames){
+			private static final long serialVersionUID = 5561942088260181172L;
 			@Override
 		    public boolean isCellEditable(int row, int column) {
 		       return false;
@@ -107,10 +109,11 @@ public class ProPanel extends JPanel{
 		table.setFillsViewportHeight(true);
 		listPan.add(scrollPane, BorderLayout.NORTH);
 		table.removeColumn(table.getColumnModel().getColumn(2));
-		//listPan.setBackground(Color.GREEN);
 		listPan.setVisible(true);
 		add(listPan);
 		//////////////////////////////////////////////////////////
+		
+		/////////////////////// Actions /////////////////////////
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
@@ -135,8 +138,6 @@ public class ProPanel extends JPanel{
 		addP.addActionListener(new ActionListener() {
 		        public void actionPerformed(ActionEvent e){
 		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
-		        	
-		        	//Exception for string to double
 		        	try{
 		        	Procedure p = new Procedure(procname.getText(),
 		        			Double.parseDouble(proccost.getText()));
@@ -153,20 +154,40 @@ public class ProPanel extends JPanel{
 		del.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e){
 	        	int row = table.getSelectedRow();
-	        	if(row != -1){
+	        	try{
 		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
 		        	//Exception Handling ArrayIndexOutOfBoundException
 		        	visual.deleteProcedure(Integer.parseInt((String)model.getValueAt(row, 2)));
 		        	model.removeRow(row);
-	        	} else {
+	        	} catch(Exception exc) {
 	        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Procedure!");
 	        	}
 	        }
 		});
-
+		
+		
+		
+		save.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e){
+	        	try{
+	        		PrintWriter writer = new PrintWriter("procOnLoad.txt", "UTF-8");
+	        		DefaultTableModel model = (DefaultTableModel) table.getModel();
+	        		int j = model.getRowCount();
+	        		for(int i = 0; i < j; i++){
+	        			writer.println(model.getValueAt(i, 0)+":"+model.getValueAt(i, 1));
+	        		}
+	        		writer.close();
+	        		JOptionPane.showMessageDialog(visual.getFrame(),"Saving successful!");
+	        	} catch(Exception exc) {
+	        		System.out.println("Couldn't save the file of procedures");
+	        	}
+	        }
+		});
+		///////////////////////////////////////////////////////////
 		setVisible(true);	
 	}
 	
+	// Get the row of the nth procedure in an array
 	public String[] getRow(int noProc){
 		String[] ret = new String[3];
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -180,6 +201,7 @@ public class ProPanel extends JPanel{
 		return ret;
 	}
 	
+	//updates the table of procedures according to the vector in parameters
 	public void updateProc(Vector<Procedure> v){
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for(int i = model.getRowCount() - 1; i > -1; i--){

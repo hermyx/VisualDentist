@@ -2,6 +2,8 @@ package cathedral;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import database.DBCreator;
+import database.DBQuery;
 import fundation.Procedure;
 
 import java.awt.*;
@@ -9,6 +11,9 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Vector;
 
 public class ProPanel extends JPanel{
@@ -17,9 +22,11 @@ public class ProPanel extends JPanel{
 	public VisualDentist visual;
 	private JTable table;
 	
-	public ProPanel(VisualDentist vd){
+	public ProPanel(VisualDentist vd) throws SQLException{
 		super();
 		visual=vd;
+		DBCreator.makeCon();
+		DBQuery.makeCon();
 		setLayout(new BoxLayout(this,1));		
 		//////////////// Infos Pan //////////////////////////////
 		JPanel infosPan = new JPanel();
@@ -54,8 +61,6 @@ public class ProPanel extends JPanel{
 		buttPan.add(update);
 		JButton del = new JButton("Delete Current Procedure");
 		buttPan.add(del);
-		JButton save = new JButton("Save current list into default one");
-		buttPan.add(save);
 		buttPan.setVisible(true);
 		add(buttPan);
 		/////////////////////////////////////////////////////////
@@ -63,39 +68,39 @@ public class ProPanel extends JPanel{
 		////////////// List Pan /////////////////////////////////
 		JPanel listPan = new JPanel();
 		listPan.setLayout(new BorderLayout());
-		String[] columnNames = {"Procedure Name",
-                "Procedure Cost", "ID"};
-		String[][] data = null;
-		//This code is building the default list of Procedure from a file
-		try{
-			String filePath = "./procOnLoad.txt";
-			BufferedReader buff = new BufferedReader(new FileReader(filePath));
-			String line;
-			int nbLine = 0;
-			while ((line = buff.readLine()) != null) {
-				nbLine++;
+		String[] columnNames = {"ID", "Procedure Name",
+                "Procedure Cost"};
+		String statement = "select * from proc";
+		ResultSet rs = DBQuery.executeQuery(statement);
+		ResultSetMetaData rsmd = DBQuery.getMetadata(statement);
+		int columnCount = rsmd.getColumnCount();
+		int nbLines = 0;
+		while(rs.next()){
+			nbLines++;
+		}
+		rs = DBQuery.executeQuery(statement);
+		String[][] data = new String[nbLines][3];
+		int k = 0;
+		while(rs.next()){
+			for(int i=0; i<columnCount;i++){
+				data[k][i]=rs.getString(i+1);
 			}
-			buff.close();
-			try{
-				buff = new BufferedReader(new FileReader(filePath));
-				data = new String[nbLine][3];
-				int i = 0;
-				while ((line = buff.readLine()) != null) {
-					String[] lineSplited = line.split(":");
-					data[i][0]=lineSplited[0];
-					data[i][1]=lineSplited[1];
-					Procedure p = new Procedure(data[i][0],
-			       			Double.parseDouble(data[i][1]));
-					data[i][2]=p.getProcNo()+"";
-			       	visual.addProcedure(p);
-			       	i++;
-				}
-				buff.close();
-			} catch (Exception exc) {
-				System.out.println("Erreur Reading of the procOnLoad File 1 : --" + exc.toString());
+			int test = Integer.parseInt(data[k][0]);
+			//In case of previous deletions
+			if(k>0 && test!=(Integer.parseInt(data[k-1][0])+1)){
+				Procedure.setNo(test+1);
 			}
-		} catch (Exception exc){
-			System.out.println("Erreur Reading of the procOnLoad File 2 : --" + exc.toString());
+			//In case of previous deletions, for the first row
+			if(k==0 && test!=0){
+				Procedure.setNo(test+1);
+			}
+			Procedure p = new Procedure(data[k][1],
+	       			Double.parseDouble(data[k][2]));
+	       	visual.addProcedure(p);
+	       	if(visual.getProcNo(data[k][1])!=Procedure.getNo()-1){
+				System.out.println("Proc ID on load mismatch");
+			}
+			k++;
 		}
 		table = new JTable(new DefaultTableModel(data, columnNames){
 			private static final long serialVersionUID = 5561942088260181172L;
@@ -108,7 +113,7 @@ public class ProPanel extends JPanel{
 		scrollPane.setPreferredSize(new Dimension(400,200));
 		table.setFillsViewportHeight(true);
 		listPan.add(scrollPane, BorderLayout.NORTH);
-		table.removeColumn(table.getColumnModel().getColumn(2));
+		table.removeColumn(table.getColumnModel().getColumn(0));
 		listPan.setVisible(true);
 		add(listPan);
 		//////////////////////////////////////////////////////////
@@ -117,21 +122,27 @@ public class ProPanel extends JPanel{
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
-				//Exception Handling ArrayIndexOutOfBoundException
-				if(row!=-1){
+				try{
+					String procNo = (String)table.getModel().getValueAt(row, 0);
 					if(!procname.getText().equals("")){
 						table.setValueAt(procname.getText(), row, 0);
+						String statement = "update proc set pName = '"+procname.getText()+"' where pid = "+procNo;
+						DBCreator.exec(statement);
 					}
 					if(!proccost.getText().equals("")){
 						table.setValueAt(proccost.getText(), row, 1);
+						String statement = "update proc set pCost = "+proccost.getText()+" where pid = "+procNo;
+						DBCreator.exec(statement);
 					}
-					//Exception here ?
 					visual.updateProcedure(
-							Integer.parseInt((String)table.getModel().getValueAt(row, 2))
+							Integer.parseInt((String)table.getModel().getValueAt(row, 0))
 							,procname.getText(), Double.parseDouble(proccost.getText()));
-				}
-				else {
+				} catch(ArrayIndexOutOfBoundsException exc) {
 					JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Procedure!");
+				} catch(NumberFormatException exc) {
+					JOptionPane.showMessageDialog(visual.getFrame(),"Please, enter a valid cost!");
+				} catch(SQLException exc) {
+					JOptionPane.showMessageDialog(visual.getFrame(),"Database issue, please contact maintenance!");
 				}
 			}
 		});
@@ -143,9 +154,13 @@ public class ProPanel extends JPanel{
 		        			Double.parseDouble(proccost.getText()));
 		        	visual.addProcedure(p);
 		        	System.out.println(p.getProcNo());
-		        	model.addRow(new String[] {procname.getText(),proccost.getText(),p.getProcNo()+""});
-		        	}
-		        	catch(Exception exc){
+		        	model.addRow(new String[] {p.getProcNo()+"",procname.getText(),proccost.getText()});
+		        	String statement = "insert into proc (pID, pName, pCost) values "
+		        			+ "("+p.getProcNo()+", '"+procname.getText()+"', "+proccost.getText()+")";
+		        	DBCreator.exec(statement);
+		        	} catch(SQLException exc){
+		        		JOptionPane.showMessageDialog(visual.getFrame(),"Database issue, please refer to an admninistrator!");
+		        	} catch(Exception exc){
 		        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, enter a valid number!");
 		        	}
 		        }
@@ -156,34 +171,20 @@ public class ProPanel extends JPanel{
 	        	int row = table.getSelectedRow();
 	        	try{
 		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
-		        	//Exception Handling ArrayIndexOutOfBoundException
-		        	visual.deleteProcedure(Integer.parseInt((String)model.getValueAt(row, 2)));
+		        	visual.deleteProcedure(Integer.parseInt((String)model.getValueAt(row, 0)));
+		        	String procNo = (String)table.getModel().getValueAt(row, 0);
+		        	String statement = "delete from proc where pid = "+procNo;
+		        	DBCreator.exec(statement);
 		        	model.removeRow(row);
-	        	} catch(Exception exc) {
+	        	} catch(ArrayIndexOutOfBoundsException exc) {
 	        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Procedure!");
-	        	}
+				} catch(SQLException exc) {
+					JOptionPane.showMessageDialog(visual.getFrame(),"Database issue, please contact maintenance!");
+				}
 	        }
 		});
 		
-		
-		
-		save.addActionListener(new ActionListener() {
-	        public void actionPerformed(ActionEvent e){
-	        	try{
-	        		PrintWriter writer = new PrintWriter("procOnLoad.txt", "UTF-8");
-	        		DefaultTableModel model = (DefaultTableModel) table.getModel();
-	        		int j = model.getRowCount();
-	        		for(int i = 0; i < j; i++){
-	        			writer.println(model.getValueAt(i, 0)+":"+model.getValueAt(i, 1));
-	        		}
-	        		writer.close();
-	        		JOptionPane.showMessageDialog(visual.getFrame(),"Saving successful!");
-	        	} catch(Exception exc) {
-	        		System.out.println("Couldn't save the file of procedures");
-	        	}
-	        }
-		});
-		///////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////////
 		setVisible(true);	
 	}
 	
@@ -192,10 +193,10 @@ public class ProPanel extends JPanel{
 		String[] ret = new String[3];
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		for(int i = model.getRowCount() - 1; i > -1; i--){
-			if(Integer.parseInt((String)model.getValueAt(i, 2))==noProc){
-				ret[0]=(String)model.getValueAt(i, 0);
-				ret[1]=(String)model.getValueAt(i, 1);
-				ret[2]=(String)model.getValueAt(i, 2);
+			if(Integer.parseInt((String)model.getValueAt(i, 0))==noProc){
+				ret[2]=(String)model.getValueAt(i, 0);
+				ret[0]=(String)model.getValueAt(i, 1);
+				ret[1]=(String)model.getValueAt(i, 2);
 			}
 		}
 		return ret;
@@ -209,7 +210,7 @@ public class ProPanel extends JPanel{
 		model.removeRow(i);
 		}
 		for(Procedure p : v){
-			String[] rowData = {p.getProcName(), p.getProcCost()+"", p.getProcNo()+""};
+			String[] rowData = {p.getProcNo()+"", p.getProcName(), p.getProcCost()+""};
 			model.addRow(rowData);
 		}
 		

@@ -81,10 +81,16 @@ public class InvPanel extends JPanel{
 				if(visual.getPatPanel().getCurrentPatientNo()!=-1){
 					DefaultTableModel model = (DefaultTableModel) table.getModel();
 					//Exception not good format
-					Invoice i = new Invoice(new MyDate(dateInv.getText()));
-		        	visual.addInv(i);
+					Invoice i = null;
+					try {
+					i = new Invoice(new MyDate(dateInv.getText()));
+					visual.addInv(i);
 		        	model.addRow(new String[] {i.getDate().toString(),i.isPaid()+"",
 		        			(i.totProc()-i.totPayment())+"", i.getInvoiceNo()+""});
+					} catch (Exception exc){
+						JOptionPane.showMessageDialog(visual.getFrame(),"Please, put a valid Date to your Invoice!");
+					}
+		        	
 	        	} else {
 	        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Patient !");
 	        	}

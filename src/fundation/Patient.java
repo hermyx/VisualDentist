@@ -195,4 +195,8 @@ public class Patient implements Comparable<Patient>, Comparator<Patient>, Serial
 		return moneyDue;
 	}
 	
+	public void setPatientNo(int no){
+		patientNo=no;
+	}
+	
 }

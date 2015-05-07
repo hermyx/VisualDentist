@@ -29,7 +29,9 @@ public class Invoice implements Serializable{
 	private boolean isPaid;
 	
 	public Invoice(){
-			
+		p_paymentList = new Vector<Payment>(0);
+		p_procList = new Vector<Procedure>(0);
+		isPaid = (totPayment()>=totProc());	
 	}
 	
 	public Invoice(MyDate d){
@@ -45,6 +47,7 @@ public class Invoice implements Serializable{
 		date = new MyDate(day, month);
 		p_paymentList = new Vector<Payment>(0);
 		p_procList = new Vector<Procedure>(0);
+		isPaid = (totPayment()>=totProc());
 	}
 	
 	public int getInvoiceNo(){
@@ -143,5 +146,25 @@ public class Invoice implements Serializable{
 			ret+="\t\t"+i+")"+p_paymentList.get(i).toString()+"\n";
 		}
 		return ret;
+	}
+
+	public void setInvoiceNo(int invoiceNo) {
+		this.invoiceNo = invoiceNo;
+	}
+
+	public void setDate(MyDate date) {
+		this.date = date;
+	}
+
+	public void setP_paymentList(Vector<Payment> p_paymentList) {
+		this.p_paymentList = p_paymentList;
+	}
+
+	public void setP_procList(Vector<Procedure> p_procList) {
+		this.p_procList = p_procList;
+	}
+
+	public void setPaid(boolean isPaid) {
+		this.isPaid = isPaid;
 	}
 }

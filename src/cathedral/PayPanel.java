@@ -41,7 +41,7 @@ public class PayPanel extends JPanel{
 		//procname.setText(s);
 		infosPan.add(payD);
 		infosPan.add(payDate);
-		JLabel payA = new JLabel("Amount of the procedure : ");
+		JLabel payA = new JLabel("Amount of the payment : ");
 		JTextField payAmount = new JTextField(10);
 		payAmount.setText("0.0");
 		MyDate today = new MyDate();
@@ -180,16 +180,21 @@ public class PayPanel extends JPanel{
 	        public void actionPerformed(ActionEvent e){
 	        	if(invGlob.getInvPan().getCurrentInvoiceNo()!=-1){
 					DefaultTableModel model = (DefaultTableModel) table.getModel();
-					//Exception not good format
-					Payment p = new Payment(Double.parseDouble(payAmount.getText()), 
-							new MyDate(payDate.getText()));
-		        	int invNo = invGlob.getInvPan().getCurrentInvoiceNo();
-		        	Patient pat = visual.getPatient(visual.getPatPanel().getCurrentPatientNo());
-		        	Invoice i = pat.getInvoice(invNo);
-		        	i.addPayment(p);
-		        	invGlob.getInvPan().updateInv(i);
-		        	model.addRow(new String[] { p.getPaymentDate().toString(),
-		        			p.getPaymentAmt()+"",p.getPaymentNo()+""});
+					Payment p = null;
+					try {
+						p = new Payment(Double.parseDouble(payAmount.getText()), 
+								new MyDate(payDate.getText()));
+						int invNo = invGlob.getInvPan().getCurrentInvoiceNo();
+			        	Patient pat = visual.getPatient(visual.getPatPanel().getCurrentPatientNo());
+			        	Invoice i = pat.getInvoice(invNo);
+			        	i.addPayment(p);
+			        	invGlob.getInvPan().updateInv(i);
+			        	model.addRow(new String[] { p.getPaymentDate().toString(),
+			        			p.getPaymentAmt()+"",p.getPaymentNo()+""});
+					} catch (Exception exc){
+						JOptionPane.showMessageDialog(visual.getFrame(),"Please, put a valid Date to your Payment!");
+					}
+		        	
 	        	} else {
 	        		JOptionPane.showMessageDialog(visual.getFrame(),"Please, select an Invoice !");
 	        	}

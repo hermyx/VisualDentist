@@ -3,13 +3,38 @@ package database;
 import java.sql.*;
 
 public class DBQuery {
-
-	public static final String SQL_STATEMENT = "select * from proc";
+	public static Connection connection;
 	
-	public static void main(String[] args) throws SQLException{ 
+	public DBQuery(){
+		
+	}
+	
+	public static void makeCon(){
+		try {
+			connection = DriverManager.getConnection(DBCreator.JDBC_URL);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static ResultSet executeQuery(String query) throws SQLException{
+		Statement statement = connection.createStatement();
+		ResultSet rs = statement.executeQuery(query);
+		return rs;
+	}
+	
+	public static ResultSetMetaData getMetadata(String query) throws SQLException{
 		Connection connection = DriverManager.getConnection(DBCreator.JDBC_URL);
 		Statement statement = connection.createStatement();
-		ResultSet rs = statement.executeQuery(SQL_STATEMENT);
+		ResultSet rs = statement.executeQuery(query);
+		ResultSetMetaData rsmd = rs.getMetaData();
+		return rsmd;
+	}
+	
+	public static void main(String[] args) throws SQLException{ 
+		/*Connection connection = DriverManager.getConnection(DBCreator.JDBC_URL);
+		Statement statement = connection.createStatement();
+		ResultSet rs = statement.executeQuery("select * from proc");
 		ResultSetMetaData rsmd = rs.getMetaData();
 		int columnCount = rsmd.getColumnCount();
 		
@@ -25,6 +50,7 @@ public class DBQuery {
 		}
 		
 		if(statement != null) statement.close();
-		if(connection != null) connection.close();
+		if(connection != null) connection.close();*/
+		
 	}
 }

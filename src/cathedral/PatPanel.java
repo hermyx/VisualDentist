@@ -19,16 +19,10 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.sql.SQLException;
 import java.util.Vector;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.PropertyException;
-import javax.xml.bind.Unmarshaller;
+import database.DBCreator;
 
 public class PatPanel extends JPanel {
 	private static final long serialVersionUID = -2127048692662400975L;
@@ -82,14 +76,10 @@ public class PatPanel extends JPanel {
 		buttPan.add(update);
 		JButton delete = new JButton("Delete Patient");
 		buttPan.add(delete);
-		JButton saveX = new JButton("Save XML and Quit");
-		buttPan.add(saveX);
-		JButton loadX = new JButton("Load from XML");
-		buttPan.add(loadX);
-		JButton saveS = new JButton("Save Serialization and Quit");
-		buttPan.add(saveS);
-		JButton loadS = new JButton("Load from Serialization");
-		buttPan.add(loadS);
+		JButton save = new JButton("Save to Databases and Quit");
+		buttPan.add(save);
+		JButton load = new JButton("Load from Databases");
+		buttPan.add(load);
 		JButton quit = new JButton("Quit without Saving");
 		buttPan.add(quit);
 		buttPan.setVisible(true);
@@ -106,6 +96,7 @@ public class PatPanel extends JPanel {
 		// data et title sont toujours nos tableaux d'objets !
 		table = new JTable(new DefaultTableModel(data, columnNames) {
 			private static final long serialVersionUID = -4898267686891186105L;
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				return false;
@@ -119,9 +110,9 @@ public class PatPanel extends JPanel {
 		// listPan.setBackground(Color.GREEN);
 		listPan.setVisible(true);
 		add(listPan);
-		//////////////////////////////////////////////////////////////
-		
-		/////////////////////////// Actions ///////////////////////////////
+		// ////////////////////////////////////////////////////////////
+
+		// ///////////////////////// Actions ///////////////////////////////
 		update.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
@@ -140,90 +131,95 @@ public class PatPanel extends JPanel {
 					visual.updatePatient(Integer.parseInt((String) table
 							.getModel().getValueAt(row, 3)), patname.getText(),
 							patAddr.getText(), patNum.getText());
-				} catch (ArrayIndexOutOfBoundsException exc){
-					JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Patient!");
+				} catch (ArrayIndexOutOfBoundsException exc) {
+					JOptionPane.showMessageDialog(visual.getFrame(),
+							"Please, select a Patient!");
 				}
 			}
 		});
 		addP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(patname.getText()==""){
-				DefaultTableModel model = (DefaultTableModel) table.getModel();
-				Patient p = new Patient(patname.getText(), patAddr.getText(),
-						patNum.getText());
-				visual.addPatient(p);
-				model.addRow(new String[] { patname.getText(),
-						patAddr.getText(), patNum.getText(),
-						p.getPatientNo() + "" });
+				if (!patname.getText().equals("")&&!patAddr.getText().equals("")&&!patNum.getText().equals("")) {
+					try{
+						Integer.parseInt(patNum.getText());
+						DefaultTableModel model = (DefaultTableModel) table
+								.getModel();
+						Patient p = new Patient(patname.getText(), patAddr
+								.getText(), patNum.getText());
+						visual.addPatient(p);
+						model.addRow(new String[] { patname.getText(),
+								patAddr.getText(), patNum.getText(),
+								p.getPatientNo() + "" });
+					} catch (Exception exc){
+						JOptionPane.showMessageDialog(visual.getFrame(),
+								"Give a real number as your Patient's phone number before adding him!");
+					}
 				} else {
-					JOptionPane.showMessageDialog(visual.getFrame(),"Give a name to your Patient before adding him!");
+					JOptionPane.showMessageDialog(visual.getFrame(),
+							"Give the right informations to your Patient before adding him!");
 				}
 			}
 		});
 		delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int row = table.getSelectedRow();
-	        	try{
-		        	DefaultTableModel model = (DefaultTableModel) table.getModel();
-		        	//Exception Handling ArrayIndexOutOfBoundException
-		        	visual.deletePatient(Integer.parseInt((String)model.getValueAt(row, 3)));
-		        	model.removeRow(row);
-		        	currentPatientNo = -1 ;
-	        	} catch (ArrayIndexOutOfBoundsException exc){
-					JOptionPane.showMessageDialog(visual.getFrame(),"Please, select a Patient!");
+				try {
+					DefaultTableModel model = (DefaultTableModel) table
+							.getModel();
+					visual.deletePatient(Integer.parseInt((String) model
+							.getValueAt(row, 3)));
+					model.removeRow(row);
+					currentPatientNo = -1;
+				} catch (ArrayIndexOutOfBoundsException exc) {
+					JOptionPane.showMessageDialog(visual.getFrame(),
+							"Please, select a Patient!");
 				}
 			}
 		});
-		
-		saveX.addActionListener(new ActionListener() {
+
+		save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try{
-				JAXBContext context = JAXBContext.newInstance(MainApplication.class, Patient.class,
-						Procedure.class, Invoice.class, Payment.class, MyDate.class);
-			    Marshaller m = context.createMarshaller();
-			    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			    m.marshal(visual.getApp(), new File("./save.xml"));
-			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
-				} catch (JAXBException exc) {
+				try {
+					//DBCreator.makeCon();
+					DBCreator.reset();
+					DefaultTableModel model = (DefaultTableModel) table
+							.getModel();
+					for(int i=0; i<model.getRowCount();i++){
+						String id = (String)model.getValueAt(i, 3);
+						String name = "'"+(String)model.getValueAt(i, 0)+"'";
+						String addr = "'"+(String)model.getValueAt(i, 1)+"'";
+						String phone = (String)model.getValueAt(i, 2);
+						String statement = "insert into pat (pID, pName, pAddress, pPhone) values "
+			        			+ "("+id+", "+name+", "+addr+ ", "+phone+")";
+						DBCreator.exec(statement);
+					}
+						visual.saveDB();
+						visual.getFrame().dispatchEvent(
+								new WindowEvent(visual.getFrame(),
+										WindowEvent.WINDOW_CLOSING));
+				} catch (SQLException exc) {
 					exc.printStackTrace();
 				}
 			}
 		});
 
-		loadX.addActionListener(new ActionListener() {
+		load.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try{
-				JAXBContext context = JAXBContext.newInstance(MainApplication.class, Patient.class,
-						Procedure.class, Invoice.class, Payment.class, MyDate.class);
-			    Marshaller m = context.createMarshaller();
-			    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-			    Unmarshaller um = context.createUnmarshaller();
-			    MainApplication app = (MainApplication) um.unmarshal(new FileReader("./save.xml"));
-			    visual.setApp(app);
-			    visual.updateAll();
-				} catch (JAXBException | FileNotFoundException exc) {
+				try {
+					MainApplication app=visual.loadDB(visual.getApp().getProcedureList());
+					visual.setApp(app);
+					visual.updateAll();
+				} catch (Exception exc) {
 					exc.printStackTrace();
 				}
 			}
 		});
-		
-		saveS.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				visual.getApp().serialize();
-				visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
-			}
-		});
-		
-		loadS.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				visual.getApp().unserialize();
-				visual.updateAll();
-			}
-		});
-		
+
 		quit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			    visual.getFrame().dispatchEvent(new WindowEvent(visual.getFrame(), WindowEvent.WINDOW_CLOSING));
+				visual.getFrame().dispatchEvent(
+						new WindowEvent(visual.getFrame(),
+								WindowEvent.WINDOW_CLOSING));
 			}
 		});
 
@@ -231,42 +227,44 @@ public class PatPanel extends JPanel {
 		table.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
 					public void valueChanged(ListSelectionEvent event) {
-						if(!event.getValueIsAdjusting()){
-							if(table.getSelectedRow()==-1){
-			        			currentPatientNo = -1;
-			        			visual.getInvGlobPanel().getInvPan().deleteAll();
-			        			visual.getInvGlobPanel().getPayPan().deleteAll();
-			        		} else {
-								currentPatientNo = Integer.parseInt(table.getModel()
+						if (!event.getValueIsAdjusting()) {
+							if (table.getSelectedRow() == -1) {
+								currentPatientNo = -1;
+								visual.getInvGlobPanel().getInvPan()
+										.deleteAll();
+								visual.getInvGlobPanel().getPayPan()
+										.deleteAll();
+							} else {
+								currentPatientNo = Integer.parseInt(table
+										.getModel()
 										.getValueAt(table.getSelectedRow(), 3)
 										.toString());
 								visual.updateInv(currentPatientNo);
-			        		}
+							}
 						}
 					}
-				}
-		);
-		//////////////////////////////////////////////////////////////////////
-		
+				});
+		// ////////////////////////////////////////////////////////////////////
+
 		setVisible(true);
 	}
 
 	public int getCurrentPatientNo() {
 		return currentPatientNo;
 	}
-	
-	//Update all the patients to the vector in parameter
-	public void updatePat(Vector<Patient> v){
+
+	// Update all the patients to the vector in parameter
+	public void updatePat(Vector<Patient> v) {
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		for(int i = model.getRowCount() - 1; i > -1; i--){
-		// Exception Handling ArrayIndexOutOfBoundException
-		model.removeRow(i);
+		for (int i = model.getRowCount() - 1; i > -1; i--) {
+			// Exception Handling ArrayIndexOutOfBoundException
+			model.removeRow(i);
 		}
-		for(Patient p : v){
-			String[] rowData = {p.getPatientName(), p.getPatientAdd(),
-					p.getPatientPhone()+"", p.getPatientNo()+""};
+		for (Patient p : v) {
+			String[] rowData = { p.getPatientName(), p.getPatientAdd(),
+					p.getPatientPhone() + "", p.getPatientNo() + "" };
 			model.addRow(rowData);
 		}
-		
+
 	}
 }

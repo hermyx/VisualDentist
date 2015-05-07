@@ -23,13 +23,17 @@ public class MyDate implements Serializable{
 	
 	/**
 	 * @param s : String in the format day/month
+	 * @throws Exception 
 	 */
-	public MyDate(String s){
+	public MyDate(String s) throws Exception{
 		String[] parts = s.split("/");
 		String d = parts[0]; 
 		int day = Integer.parseInt(d);
 		String m = parts[1];
 		int month = Integer.parseInt(m);
+		if(parts.length > 2 || day > 31 || month > 12){
+			throw new Exception();
+		}
 		this.day=day;
 		this.month=month;
 	}

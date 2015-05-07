@@ -92,6 +92,10 @@ public class Payment implements Comparable<Patient>, Comparator<Patient>, Serial
 		}
 		return ret;
 	}
+
+	public void setPaymentNo(int paymentNo) {
+		this.paymentNo = paymentNo;
+	}
 	
 	
 	

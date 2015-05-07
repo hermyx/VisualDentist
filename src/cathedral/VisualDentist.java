@@ -346,7 +346,6 @@ public class VisualDentist {
 			//We create an array to put the result of the query in it
 			//This way it's more simple to manipulate the data.
 			String patient[] = new String[columnCount];
-			int k=0;
 			while(rs.next()){
 				for(int i=0; i<columnCount;i++){
 					patient[i]=rs.getString(i+1);
